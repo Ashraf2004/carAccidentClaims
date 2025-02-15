@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Insurance Prediction</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        img {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .result {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 15px;
+        }
+    </style>
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('imagePreview');
+                output.src = reader.result;
+                output.style.display = 'block';
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+        async function submitForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            document.getElementById('result').textContent = "Predicted Amount: " + result.predicted_amount.toFixed(2);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Upload Image and Enter Data</h2>
+        <form onsubmit="submitForm(event)" enctype="multipart/form-data">
+            <input type="file" name="image_file" required onchange="previewImage(event)"><br>
+            <img id="imagePreview" style="display: none;">
+            <input type="text" name="insurance_company" placeholder="Insurance Company" required>
+            <input type="number" name="cost" placeholder="Cost of Vehicle" required>
+            <input type="number" name="min_coverage" placeholder="Minimum Coverage" required>
+            <input type="number" name="max_coverage" placeholder="Maximum Coverage" required>
+            <input type="number" name="days_expiry" placeholder="Days Until Expiry" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+</body>
+</html>
